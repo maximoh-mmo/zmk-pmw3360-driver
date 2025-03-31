@@ -13,6 +13,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/byteorder.h>
 #include "pmw3360.h"
+#include "pwm3360_priv.c"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(pmw3360, CONFIG_PMW3360_LOG_LEVEL);
