@@ -14,7 +14,6 @@
 #include <zephyr/sys/byteorder.h>
 #include "pmw3360.h"
 #include "pmw3360srom.h"
-#include "delay.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(pmw3360, CONFIG_PMW3360_LOG_LEVEL);
@@ -633,14 +632,14 @@ static int pmw3360_async_init_fw_load_verify(const struct device *dev)
 	/* Read the SROM_ID register to verify the firmware ID before any
 	 * other register reads or writes
 	 */
-	delay(10); /* Delay 10 ms */
+	nrf_delay_ms(10); /* Delay 10 ms */
 	uint8_t fw_id;
 	err = reg_read(dev, PMW3360_REG_SROM_ID, &fw_id);
 	if (err) {
 		LOG_ERR("Cannot obtain firmware id");
 		return err;
 	}
-	delay(10); /* Delay 10 ms */
+	nrf_delay_ms(10); /* Delay 10 ms */
 	LOG_DBG("Optical chip firmware ID: 0x%x", fw_id);
 	if (fw_id != PMW3360_FIRMWARE_ID) {
 		LOG_ERR("Chip is not running from SROM!, returned fw_id is 0x%x", fw_id);
@@ -732,7 +731,7 @@ static int pmw3360_async_init_power_up(const struct device *dev)
 	/* Reset sensor */
 	int reset = reg_write(dev, PMW3360_REG_POWER_UP_RESET, 0x5A);
 
-	delay(50); /* Delay 10 ms */
+	nrf_delay_ms(50); /* Delay 10 ms */
 	return reset;
 }
 
