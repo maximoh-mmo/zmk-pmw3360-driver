@@ -1006,8 +1006,10 @@ static void trigger_handler(struct k_work *work)
 static int pmw3360_async_init_power_up(const struct device *dev)
 {
 	/* Reset sensor */
+	int reset = reg_write(dev, PMW3360_REG_POWER_UP_RESET, 0x5A);
 
-	return reg_write(dev, PMW3360_REG_POWER_UP_RESET, 0x5A);
+	delay(50); /* Delay 10 ms */
+	return reset;
 }
 
 static int pmw3360_async_init_configure(const struct device *dev)
