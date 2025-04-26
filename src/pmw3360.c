@@ -887,7 +887,6 @@ static int pmw3360_sample_fetch(const struct device *dev, enum sensor_channel ch
 			data->y = -x;
 		}
 	}
-	LOG_INF("sample fetched");
 
 	return err;
 }
