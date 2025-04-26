@@ -727,9 +727,7 @@ static void trigger_handler(struct k_work *work)
 static int pmw3360_async_init_power_up(const struct device *dev)
 {
 	/* Reset sensor */
-	k_sleep(K_MSEC(1000));
 	int reset = reg_write(dev, PMW3360_REG_POWER_UP_RESET, 0x5A);
-
 	return reset;
 }
 
