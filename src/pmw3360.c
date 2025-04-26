@@ -727,6 +727,7 @@ static void trigger_handler(struct k_work *work)
 static int pmw3360_async_init_power_up(const struct device *dev)
 {
 	/* Reset sensor */
+	k_sleep(1000)
 	int reset = reg_write(dev, PMW3360_REG_POWER_UP_RESET, 0x5A);
 
 	return reset;
@@ -808,7 +809,7 @@ static int pmw3360_init_irq(const struct device *dev)
 	if (err) {
 		LOG_ERR("Cannot add IRQ GPIO callback");
 	}
-
+	LOG_DBG("Initialized IRQ");
 	return err;
 }
 
@@ -825,17 +826,21 @@ static int pmw3360_init(const struct device *dev)
 		LOG_ERR("SPI device not ready");
 		return -ENODEV;
 	}
+	LOG_DBG("Initialized SPI");
 
 	if (!device_is_ready(config->cs_gpio.port)) {
 		LOG_ERR("SPI CS device not ready");
 		return -ENODEV;
 	}
+	LOG_DBG("Initialized CS");
 
 	err = gpio_pin_configure_dt(&config->cs_gpio, GPIO_OUTPUT_INACTIVE);
 	if (err) {
 		LOG_ERR("Cannot configure SPI CS GPIO");
 		return err;
 	}
+
+	LOG_DBG("Initialized CS");
 
 	err = pmw3360_init_irq(dev);
 	if (err) {
