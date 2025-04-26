@@ -19,6 +19,13 @@ config PMW3360_CPI
 	help
 	  Default CPI value.
 
+config PMW3360_CPI_DIVIDOR
+	int "PMW3360's default CPI dividor"
+	default 4
+	range 1 12
+	help
+	  Default CPI dividor value.
+
 config PMW3360_RUN_DOWNSHIFT_TIME_MS
 	int "PMW3360's default RUN mode downshift time"
 	default 500
