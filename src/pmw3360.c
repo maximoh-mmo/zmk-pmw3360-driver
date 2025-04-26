@@ -16,7 +16,7 @@
 #include "pmw3360srom.h"
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(pmw3360, 5);
+LOG_MODULE_REGISTER(pmw3360, CONFIG_PMW3360_LOG_LEVEL);
 
 /* Timings defined by spec */
 #define T_NCS_SCLK	1			/* 120 ns */
@@ -774,7 +774,7 @@ static void pmw3360_async_init(struct k_work *work)
 
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
-			LOG_DBG("PMW3360 initialized");
+			LOG_INF("PMW3360 initialized");
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
