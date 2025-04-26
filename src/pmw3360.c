@@ -12,14 +12,14 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/input/input.h>
 #include "pmw3360.h"
-
+#include "pmw3360srom.h"
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(pmw3360, CONFIG_PMW3360_LOG_LEVEL);
 
 
 /* SROM firmware meta-data, defined in pmw3360_piv.c */
-extern const size_t pmw3360_firmware_length;
-extern const uint8_t pmw3360_firmware_data[];
+//extern const size_t pmw3360_firmware_length;
+//extern const uint8_t pmw3360_firmware_data[];
 
 /* sensor initialization steps definition */
 // init is done in non-bpmw3360_async_initlocking manner (i.e., async), a delayable work is defined for this job
@@ -597,23 +597,11 @@ static int pmw3360_report_data(const struct device *dev) {
 
     data->curr_mode = input_mode;
 
-//#if AUTOMOUSE_LAYER > 0
-//    if (input_mode == MOVE &&
-//            (automouse_triggered || zmk_keymap_highest_layer_active() != AUTOMOUSE_LAYER)
-//    ) {
-//        activate_automouse_layer();
-//    }
-//#endif
 
     int err = motion_burst_read(dev, buf, sizeof(buf));
     if (err) {
         return err;
     }
-
-//    int16_t raw_x =
-//        TOINT16((buf[PMW3610_X_L_POS] + ((buf[PMW3610_XY_H_POS] & 0xF0) << 4)), 12) / dividor;
-//    int16_t raw_y =
-//        TOINT16((buf[PMW3610_Y_L_POS] + ((buf[PMW3610_XY_H_POS] & 0x0F) << 8)), 12) / dividor;
 
     int16_t raw_x = ((int16_t)sys_get_le16(buf[PMW3360_DX_POS])) / CONFIG_PMW3360_CPI_DIVIDOR;
     int16_t raw_y = ((int16_t)sys_get_le16(buf[PMW3360_DY_POS])) / CONFIG_PMW3360_CPI_DIVIDOR;
@@ -634,68 +622,11 @@ static int pmw3360_report_data(const struct device *dev) {
         y = raw_x;
     }
 
-//    if (IS_ENABLED(CONFIG_PMW3360_INVERT_X)) {
-//        x = -x;
-//    }
-//
-//    if (IS_ENABLED(CONFIG_PMW3360_INVERT_Y)) {
-//        y = -y;
-//    }
-
-//#ifdef CONFIG_PMW3610_SMART_ALGORITHM
-//    int16_t shutter =
-//        ((int16_t)(buf[PMW3610_SHUTTER_H_POS] & 0x01) << 8) + buf[PMW3610_SHUTTER_L_POS];
-//    if (data->sw_smart_flag && shutter < 45) {
-//        reg_write(dev, 0x32, 0x00);
-//
-//        data->sw_smart_flag = false;
-//    }
-//
-//    if (!data->sw_smart_flag && shutter > 45) {
-//        reg_write(dev, 0x32, 0x80);
-//
-//        data->sw_smart_flag = true;
-//    }
-//#endif
-
-//#ifdef CONFIG_PMW3610_POLLING_RATE_125_SW
-//    int64_t curr_time = k_uptime_get();
-//    if (data->last_poll_time == 0 || curr_time - data->last_poll_time > 128) {
-//        data->last_poll_time = curr_time;
-//        data->last_x = x;
-//        data->last_y = y;
-//        return 0;
-//    } else {
-//        x += data->last_x;
-//        y += data->last_y;
-//        data->last_poll_time = 0;
-//        data->last_x = 0;
-//        data->last_y = 0;
-//    }
-//#endif
-
     if (x != 0 || y != 0) {
         if (input_mode != SCROLL) {
             input_report_rel(dev, INPUT_REL_X, x, false, K_FOREVER);
             input_report_rel(dev, INPUT_REL_Y, y, true, K_FOREVER);
         }
-//        } else {
-//            data->scroll_delta_x += x;
-//            data->scroll_delta_y += y;
-//            if (abs(data->scroll_delta_y) > CONFIG_PMW3610_SCROLL_TICK) {
-//                input_report_rel(dev, INPUT_REL_WHEEL,
-//                                 data->scroll_delta_y > 0 ? PMW3610_SCROLL_Y_NEGATIVE : PMW3610_SCROLL_Y_POSITIVE,
-//                                 true, K_FOREVER);
-//                data->scroll_delta_x = 0;
-//                data->scroll_delta_y = 0;
-//            } else if (abs(data->scroll_delta_x) > CONFIG_PMW3610_SCROLL_TICK) {
-//                input_report_rel(dev, INPUT_REL_HWHEEL,
-//                                 data->scroll_delta_x > 0 ? PMW3610_SCROLL_X_NEGATIVE : PMW3610_SCROLL_X_POSITIVE,
-//                                 true, K_FOREVER);
-//                data->scroll_delta_x = 0;
-//                data->scroll_delta_y = 0;
-//            }
-//        }
     }
 
     return err;
