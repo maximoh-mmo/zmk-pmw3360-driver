@@ -16,7 +16,7 @@
 #include "pmw3360srom.h"
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(pmw3360, CONFIG_PMW3360_LOG_LEVEL);
+LOG_MODULE_REGISTER(pmw3360, 5);
 
 /* Timings defined by spec */
 #define T_NCS_SCLK	1			/* 120 ns */
