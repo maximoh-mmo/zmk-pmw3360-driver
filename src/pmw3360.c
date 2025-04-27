@@ -526,7 +526,7 @@ static void irq_handler(const struct device *gpiob, struct gpio_callback *cb, ui
     const struct device *dev = data->dev;
     const struct pixart_config *config = dev->config;
 
-//    LOG_INF("In irq handler");
+    LOG_INF("In irq handler");
     // disable the interrupt line first
     err = gpio_pin_interrupt_configure_dt(&config->irq_gpio, GPIO_INT_DISABLE);
     if (unlikely(err)) {
@@ -539,7 +539,7 @@ static void irq_handler(const struct device *gpiob, struct gpio_callback *cb, ui
 }
 
 static void set_interrupt(const struct device *dev, const bool en) {
-//    LOG_INF("In pwm3360_set_interrupt");
+    LOG_INF("In pwm3360_set_interrupt");
     const struct pixart_config *config = dev->config;
     int ret = gpio_pin_interrupt_configure_dt(&config->irq_gpio,
                                               en ? GPIO_INT_LEVEL_ACTIVE : GPIO_INT_DISABLE);
@@ -634,7 +634,7 @@ static int pmw3360_report_data(const struct device *dev) {
 
 static void pmw3360_gpio_callback(const struct device *gpiob, struct gpio_callback *cb,
                                   uint32_t pins) {
-//    LOG_INF("In pwm3360_gpio_callback");
+    LOG_INF("In pwm3360_gpio_callback");
     struct pixart_data *data = CONTAINER_OF(cb, struct pixart_data, irq_gpio_cb);
     const struct device *dev = data->dev;
 
@@ -645,7 +645,7 @@ static void pmw3360_gpio_callback(const struct device *gpiob, struct gpio_callba
 }
 
 static void pmw3360_work_callback(struct k_work *work) {
-//    LOG_INF("In pwm3360_work_callback");
+    LOG_INF("In pwm3360_work_callback");
     struct pixart_data *data = CONTAINER_OF(work, struct pixart_data, trigger_work);
     const struct device *dev = data->dev;
 
@@ -755,10 +755,10 @@ static int pmw3360_init(const struct device *dev) {
     k_work_init(&data->trigger_work, pmw3360_work_callback);
 
     // check readiness of spi bus
-//    if (!device_is_ready(&config->cs_gpio.port)) {
-//        LOG_ERR("SPI CS device not ready");
-//        return -ENODEV;
-//    }
+    if (!device_is_ready(&config->cs_gpio.port)) {
+        LOG_ERR("SPI CS device not ready");
+        return -ENODEV;
+    }
 
     // check readiness of cs gpio pin and init it to inactive
     if (!device_is_ready(config->cs_gpio.port)) {
