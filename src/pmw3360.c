@@ -184,9 +184,13 @@ static int motion_burst_read(const struct device *dev, uint8_t *buf, size_t burs
     }
 
     err = spi_cs_ctrl(dev, true);
+    LOG_INF("Motion burst read - size: %d", burst_size);
     if (err) {
+        LOG_ERR("Motion burst read failed: %d", err);
         return err;
-    }
+    }else {
+        LOG_INF("Motion data read successfully");
+        }
 
     /* Send motion burst address */
     uint8_t reg_buf[] = {PMW3360_REG_MOTION_BURST};
@@ -595,9 +599,7 @@ static int pmw3360_report_data(const struct device *dev) {
 
 
     int err = motion_burst_read(dev, buf, sizeof(buf));
-    LOG_INF("Motion burst read - size: %d", burst_size);
     if (err) {
-        LOG_ERR("Motion burst read failed: %d", err);
         return err;
     }
 
