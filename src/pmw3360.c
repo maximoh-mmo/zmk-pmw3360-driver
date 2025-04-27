@@ -595,7 +595,9 @@ static int pmw3360_report_data(const struct device *dev) {
 
 
     int err = motion_burst_read(dev, buf, sizeof(buf));
+    LOG_INF("Motion burst read - size: %d", burst_size);
     if (err) {
+        LOG_ERR("Motion burst read failed: %d", err);
         return err;
     }
 
