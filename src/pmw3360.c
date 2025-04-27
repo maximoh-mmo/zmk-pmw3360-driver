@@ -855,6 +855,7 @@ static int pmw3360_init(const struct device *dev)
 
 static int pmw3360_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
+    LOG_DBG("Fetching data");
 	struct pmw3360_data *data = dev->data;
 	uint8_t buf[PMW3360_BURST_SIZE];
 
