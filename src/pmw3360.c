@@ -60,23 +60,19 @@ static int (*const async_init_fn[ASYNC_INIT_STEP_COUNT])(const struct device *de
 };
 
 static int spi_cs_ctrl(const struct device *dev, bool enable) {
+    // Tested working
     const struct pixart_config *config = dev->config;
     int err;
-
     if (!enable) {
         k_busy_wait(T_NCS_SCLK);
     }
-
     err = gpio_pin_set_dt(&config->cs_gpio, (int)enable);
     if (err) {
         LOG_ERR("SPI CS ctrl failed");
     }
-
     if (enable) {
         k_busy_wait(T_NCS_SCLK);
     }
-
-    LOG_INF("finished spi_cs_ctrl");
     return err;
 }
 
@@ -623,6 +619,8 @@ static int pmw3360_report_data(const struct device *dev) {
     }
 
     if (x != 0 || y != 0) {
+        LOG_INF("Motion detected - X: %d, Y: %d", x, y);
+
         if (input_mode != SCROLL) {
             input_report_rel(dev, INPUT_REL_X, x, false, K_FOREVER);
             input_report_rel(dev, INPUT_REL_Y, y, true, K_FOREVER);
@@ -642,7 +640,7 @@ static void pmw3360_gpio_callback(const struct device *gpiob, struct gpio_callba
     int pin_state;
     pin_state = gpio_pin_get_dt(&config->irq_gpio);
     LOG_INF("IRQ Triggered - Pin State: %d", pin_state);
-    
+
     set_interrupt(dev, false);
 
     // submit the real handler work
