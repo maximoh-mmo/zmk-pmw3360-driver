@@ -638,6 +638,11 @@ static void pmw3360_gpio_callback(const struct device *gpiob, struct gpio_callba
     struct pixart_data *data = CONTAINER_OF(cb, struct pixart_data, irq_gpio_cb);
     const struct device *dev = data->dev;
 
+    const struct pixart_config *config = dev->config;
+    int pin_state;
+    pin_state = gpio_pin_get_dt(&config->irq_gpio);
+    LOG_INF("IRQ Triggered - Pin State: %d", pin_state);
+    
     set_interrupt(dev, false);
 
     // submit the real handler work
