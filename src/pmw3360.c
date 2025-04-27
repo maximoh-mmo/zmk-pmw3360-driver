@@ -754,12 +754,6 @@ static int pmw3360_init(const struct device *dev) {
     // init trigger handler work
     k_work_init(&data->trigger_work, pmw3360_work_callback);
 
-    // check readiness of spi bus
-    if (!device_is_ready(&config->cs_gpio.port)) {
-        pmw3360_init(dev);
-        return -ENODEV;        
-    }
-
     // check readiness of cs gpio pin and init it to inactive
     if (!device_is_ready(config->cs_gpio.port)) {
         LOG_ERR("SPI CS device not ready");
