@@ -840,12 +840,7 @@ static void pmw3360_async_init(struct k_work *work)
 			if (disable) {
 				LOG_ERR("Cannot disable REST mode %d", disable);
 				}
-			
-			for (int x = 0; x<1000; ++x){
-				pmw3360_sample_fetch(dev,SENSOR_CHAN_ALL);
-				k_busy_wait(T_SRAD);
-			}
-			
+				pmw3360_sample_fetch(dev,SENSOR_CHAN_ALL);			
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
