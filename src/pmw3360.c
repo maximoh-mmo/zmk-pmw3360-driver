@@ -770,7 +770,7 @@ static int dummy_read(const struct device *dev)
 		LOG_ERR("Cannot read motion register");
 		return err;
 	}
-	LOG_DBG("Motion register value: 0x%x", motion);
+	LOG_INF("Motion register value: 0x%x", motion);
 	
 	return 0;
 }
