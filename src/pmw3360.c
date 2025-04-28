@@ -835,10 +835,11 @@ static void pmw3360_async_init(struct k_work *work)
 			LOG_INF("PMW3360 initialized");
 			int read = dummy_read(dev);
 			LOG_DBG("Dummy read returned %d", read);
-			for (int x = 0; x<100000; ++x)
-			{
+			reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
+			for (int x = 0; x<100000; ++x){
 				pmw3360_sample_fetch(dev,SENSOR_CHAN_ALL);
 			}
+			
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
