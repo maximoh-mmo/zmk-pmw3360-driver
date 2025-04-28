@@ -758,6 +758,24 @@ static int pmw3360_async_init_configure(const struct device *dev)
 	return err;
 }
 
+static int dummy_read(const struct device *dev)
+{
+	int err;
+	uint8_t motion;
+	
+	LOG_INF("Performing Dummy Read");
+
+	err = reg_read(dev, PMW3360_REG_MOTION, &motion);
+	if (err) {
+		LOG_ERR("Cannot read motion register");
+		return err;
+	}
+	LOG_DBG("Motion register value: 0x%x", motion);
+	
+	return 0;
+}
+
+
 static void pmw3360_async_init(struct k_work *work)
 {
 	struct pmw3360_data *data = CONTAINER_OF(work, struct pmw3360_data,
@@ -853,24 +871,6 @@ static int pmw3360_init(const struct device *dev)
 			K_MSEC(async_init_delay[data->async_init_step]));
 
 	return err;
-}
-
-static int dummy_read(const struct device *dev)
-{
-	int err;
-	uint8_t motion;
-	
-	LOG_INF("Performing Dummy Read");
-
-	err = reg_read(dev, PMW3360_REG_MOTION, &motion);
-	if (err) {
-		LOG_ERR("Cannot read motion register");
-		return err;
-	}
-	LOG_DBG("Motion register value: 0x%x", motion);
-	
-	return 0;
-	
 }
 
 static int pmw3360_sample_fetch(const struct device *dev, enum sensor_channel chan)
