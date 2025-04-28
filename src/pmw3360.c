@@ -659,11 +659,11 @@ static int pmw3360_async_init_fw_load_verify(const struct device *dev)
 	/* Write 0x20 to Config2 register for wireless mouse design.
 	 * This enables entering rest modes.
 	 */
-	err = reg_write(dev, PMW3360_REG_CONFIG2, 0x20);
+	err = reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
 	if (err) {
-		LOG_ERR("Cannot enable REST modes");
+		LOG_ERR("Cannot disable REST modes");
 	}
-
+    LOG_INF("Rest modes disabled, sensor is fully active");
 	return err;
 }
 
@@ -722,6 +722,36 @@ static void trigger_handler(struct k_work *work)
 		LOG_ERR("Cannot re-enable IRQ");
 		k_panic();
 	}
+}
+
+void pmw3360_debug_print_motion(const struct device *dev)
+{
+    struct sensor_value val_x, val_y;
+    int err;
+
+    /* Fetch latest motion data from the sensor */
+    err = sensor_sample_fetch(dev);
+    if (err) {
+        LOG_ERR("Failed to fetch motion data (%d)", err);
+        return;
+    }
+
+    /* Get X movement */
+    err = sensor_channel_get(dev, SENSOR_CHAN_POS_DX, &val_x);
+    if (err) {
+        LOG_ERR("Failed to get X motion (%d)", err);
+        return;
+    }
+
+    /* Get Y movement */
+    err = sensor_channel_get(dev, SENSOR_CHAN_POS_DY, &val_y);
+    if (err) {
+        LOG_ERR("Failed to get Y motion (%d)", err);
+        return;
+    }
+
+    /* Print the motion deltas */
+    printk("Motion: ΔX = %d, ΔY = %d\n", val_x.val1, val_y.val1);
 }
 
 static int pmw3360_async_init_power_up(const struct device *dev)
@@ -833,14 +863,7 @@ static void pmw3360_async_init(struct k_work *work)
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
 			LOG_INF("PMW3360 initialized");
-			int read = dummy_read(dev);
-			LOG_DBG("Dummy read returned %d", read);
-			reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
-			int disable = reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
-			if (disable) {
-				LOG_ERR("Cannot disable REST mode %d", disable);
-				}
-				pmw3360_sample_fetch(dev,SENSOR_CHAN_ALL);			
+			pmw3360_debug_print_motion(dev);
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
