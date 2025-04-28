@@ -886,7 +886,7 @@ static int pmw3360_sample_fetch(const struct device *dev, enum sensor_channel ch
 	}
 
 	if (unlikely(!data->ready)) {
-		LOG_DBG("Device is not initialized yet");
+		LOG_INF("Device is not initialized yet");
 		return -EBUSY;
 	}
 
@@ -910,7 +910,7 @@ static int pmw3360_sample_fetch(const struct device *dev, enum sensor_channel ch
 			data->y = -x;
 		}
 	}
-
+	LOG_INF("x: %d, y: %d", data->x, data->y);
 	return err;
 }
 
