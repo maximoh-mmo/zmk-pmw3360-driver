@@ -836,8 +836,14 @@ static void pmw3360_async_init(struct k_work *work)
 			int read = dummy_read(dev);
 			LOG_DBG("Dummy read returned %d", read);
 			reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
+			int disable = reg_write(dev, PMW3360_REG_CONFIG2, 0x00);
+			if (disable) {
+				LOG_ERR("Cannot disable REST mode %d", disable);
+				}
+			
 			for (int x = 0; x<100000; ++x){
 				pmw3360_sample_fetch(dev,SENSOR_CHAN_ALL);
+				k_busy_wait(T_SRAD);
 			}
 			
 		} else {
