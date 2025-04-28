@@ -775,7 +775,8 @@ static void pmw3360_async_init(struct k_work *work)
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
 			LOG_INF("PMW3360 initialized");
-			dummy_read(dev);
+			int read = dummy_read(dev);
+			LOG_DBG("Dummy read returned %d", read);
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
