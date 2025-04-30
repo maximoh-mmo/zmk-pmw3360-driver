@@ -10,12 +10,6 @@ menuconfig PMW3360
 	help
 	  Enable PMW3360 mouse optical sensor.
 
-menuconfig PMW3366
-	bool "PMW3366 mouse optical sensor"
-	help
-	  Enable PMW3366 mouse optical sensor.
-
-
 if PMW3360
 
 config PMW3360_CPI
@@ -72,6 +66,11 @@ module-str = PMW3360
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 endif #PMW3360
+
+menuconfig PMW3366
+	bool "PMW3366 mouse optical sensor"
+	help
+	  Enable PMW3366 mouse optical sensor.
 
 if PMW3366
 
