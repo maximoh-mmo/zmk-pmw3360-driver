@@ -10,6 +10,12 @@ menuconfig PMW3360
 	help
 	  Enable PMW3360 mouse optical sensor.
 
+menuconfig PMW3366
+	bool "PMW3366 mouse optical sensor"
+	help
+	  Enable PMW3366 mouse optical sensor.
+
+
 if PMW3360
 
 config PMW3360_CPI
