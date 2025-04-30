@@ -602,6 +602,8 @@ static int pmw3366_async_init_fw_load_start(const struct device *dev)
 	return err;
 }
 
+static int dummy_read(const struct device *dev);
+static int pmw3366_init_irq(const struct device *dev);
 static int pmw3366_async_init_fw_load_continue(const struct device *dev)
 {
 	int err;
@@ -670,6 +672,7 @@ static int pmw3366_async_init_fw_load_verify(const struct device *dev)
 	pmw3366_init_irq(dev);
 	return err;
 }
+
 
 static void irq_handler(const struct device *gpiob, struct gpio_callback *cb,
 			uint32_t pins)
