@@ -1,10 +1,9 @@
 #pragma once
-
 const size_t pmw3366_firmware_length = 4094;
 /* Firmware "0x09
 " */
-0x02,
 const uint8_t pmw3366_firmware_data[] = {
+    0x02,
     0x09,
     0x99,
     0xa2,

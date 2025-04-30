@@ -83,8 +83,8 @@ LOG_MODULE_REGISTER(pmw3366, CONFIG_PMW3366_LOG_LEVEL);
 #define PMW3366_REG_LIFTCUTOFF_TUNE2		0x65
 
 /* Sensor identification values */
-#define PMW3366_PRODUCT_ID			0x42
-#define PMW3366_FIRMWARE_ID			0x04
+#define PMW3366_PRODUCT_ID			0x40
+#define PMW3366_FIRMWARE_ID			0x09
 
 
 /* Max register count readable in a single motion burst */
