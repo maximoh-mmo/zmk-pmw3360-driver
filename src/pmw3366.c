@@ -86,7 +86,6 @@ LOG_MODULE_REGISTER(pmw3366, CONFIG_PMW3366_LOG_LEVEL);
 #define PMW3366_PRODUCT_ID			0x40
 #define PMW3366_FIRMWARE_ID			0x09
 
-
 /* Max register count readable in a single motion burst */
 #define PMW3366_MAX_BURST_SIZE			12
 
@@ -287,6 +286,7 @@ static int reg_write(const struct device *dev, uint8_t reg, uint8_t val)
 	k_busy_wait(T_SWX);
 
 	data->last_read_burst = false;
+	LOG_INF("Burst read success");
 
 	return 0;
 }
@@ -305,6 +305,7 @@ static int motion_burst_read(const struct device *dev, uint8_t *buf,
 	 */
 	if (!data->last_read_burst) {
 		err = reg_write(dev, PMW3366_REG_MOTION_BURST, 0x00);
+		LOG_INF("Burst read: write to Motion Burst register");
 		if (err) {
 			return err;
 		}
@@ -665,6 +666,8 @@ static int pmw3366_async_init_fw_load_verify(const struct device *dev)
 		LOG_ERR("Cannot disable REST modes");
 	}
     LOG_INF("Rest modes disabled, sensor is fully active");
+	dummy_read(dev);
+	pmw3366_init_irq(dev);
 	return err;
 }
 
@@ -810,7 +813,7 @@ static int dummy_read(const struct device *dev)
 
 static int pmw3366_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
-    LOG_DBG("Fetching data");
+    LOG_INF("Fetching data");
 	struct pmw3366_data *data = dev->data;
 	uint8_t buf[PMW3366_BURST_SIZE];
 
@@ -864,7 +867,6 @@ static void pmw3366_async_init(struct k_work *work)
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
 			LOG_INF("PMW3366 initialized");
-			pmw3366_debug_print_motion(dev);
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
