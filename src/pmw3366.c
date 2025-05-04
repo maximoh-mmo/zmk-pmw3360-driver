@@ -669,28 +669,7 @@ static int pmw3366_async_init_fw_load_verify(const struct device *dev)
 	}
     LOG_INF("Rest modes disabled, sensor is fully active");
 	dummy_read(dev);
-
-	const struct pmw3366_config *config = dev->config;
-	
-	if (!device_is_ready(config->irq_gpio.port)) {
-		LOG_ERR("IRQ GPIO device not ready");
-		return -ENODEV;
-	}
-	
-	err = gpio_pin_configure_dt(&config->irq_gpio, GPIO_INPUT);
-	if (err) {
-		LOG_ERR("Cannot configure IRQ GPIO");
-		return err;
-	}
-	
-	gpio_init_callback(&data->irq_gpio_cb, irq_handler,
-			   BIT(config->irq_gpio.pin));
-	
-			   err = gpio_add_callback(config->irq_gpio.port, &data->irq_gpio_cb);
-	if (err) {
-		LOG_ERR("Cannot add IRQ GPIO callback");
-	}
-	LOG_DBG("Initialized IRQ");
+	pmw3366_init_irq(dev);
 	return err;
 }
 
@@ -891,7 +870,6 @@ static void pmw3366_async_init(struct k_work *work)
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
 			LOG_INF("PMW3366 initialized");
-			set_interrupt(dev, true);
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
@@ -1110,15 +1088,6 @@ static int pmw3366_attr_set(const struct device *dev, enum sensor_channel chan,
 	}
 
 	return err;
-}
-
-static void set_interrupt(const struct device *dev, const bool en) {
-    const struct pixart_config *config = dev->config;
-    int ret = gpio_pin_interrupt_configure_dt(&config->irq_gpio,
-                                              en ? GPIO_INT_LEVEL_ACTIVE : GPIO_INT_DISABLE);
-    if (ret < 0) {
-        LOG_ERR("can't set interrupt");
-    }
 }
 
 static const struct sensor_driver_api pmw3366_driver_api = {
