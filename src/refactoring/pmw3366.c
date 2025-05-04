@@ -31,57 +31,6 @@ LOG_MODULE_REGISTER(pmw3366, CONFIG_PMW3366_LOG_LEVEL);
 #define T_BRSEP		15			/* 15 us */
 
 
-/* Sensor registers */
-#define PMW3366_REG_PRODUCT_ID			0x00
-#define PMW3366_REG_REVISION_ID			0x01
-#define PMW3366_REG_MOTION			0x02
-#define PMW3366_REG_DELTA_X_L			0x03
-#define PMW3366_REG_DELTA_X_H			0x04
-#define PMW3366_REG_DELTA_Y_L			0x05
-#define PMW3366_REG_DELTA_Y_H			0x06
-#define PMW3366_REG_SQUAL			0x07
-#define PMW3366_REG_RAW_DATA_SUM		0x08
-#define PMW3366_REG_MAXIMUM_RAW_DATA		0x09
-#define PMW3366_REG_MINIMUM_RAW_DATA		0x0A
-#define PMW3366_REG_SHUTTER_LOWER		0x0B
-#define PMW3366_REG_SHUTTER_UPPER		0x0C
-#define PMW3366_REG_CONTROL			0x0D
-#define PMW3366_REG_CONFIG1			0x0F
-#define PMW3366_REG_CONFIG2			0x10
-#define PMW3366_REG_ANGLE_TUNE			0x11
-#define PMW3366_REG_FRAME_CAPTURE		0x12
-#define PMW3366_REG_SROM_ENABLE			0x13
-#define PMW3366_REG_RUN_DOWNSHIFT		0x14
-#define PMW3366_REG_REST1_RATE_LOWER		0x15
-#define PMW3366_REG_REST1_RATE_UPPER		0x16
-#define PMW3366_REG_REST1_DOWNSHIFT		0x17
-#define PMW3366_REG_REST2_RATE_LOWER		0x18
-#define PMW3366_REG_REST2_RATE_UPPER		0x19
-#define PMW3366_REG_REST2_DOWNSHIFT		0x1A
-#define PMW3366_REG_REST3_RATE_LOWER		0x1B
-#define PMW3366_REG_REST3_RATE_UPPER		0x1C
-#define PMW3366_REG_OBSERVATION			0x24
-#define PMW3366_REG_DATA_OUT_LOWER		0x25
-#define PMW3366_REG_DATA_OUT_UPPER		0x26
-#define PMW3366_REG_RAW_DATA_DUMP		0x29
-#define PMW3366_REG_SROM_ID			0x2A
-#define PMW3366_REG_MIN_SQ_RUN			0x2B
-#define PMW3366_REG_RAW_DATA_THRESHOLD		0x2C
-#define PMW3366_REG_CONFIG5			0x2F
-#define PMW3366_REG_POWER_UP_RESET		0x3A
-#define PMW3366_REG_SHUTDOWN			0x3B
-#define PMW3366_REG_INVERSE_PRODUCT_ID		0x3F
-#define PMW3366_REG_LIFTCUTOFF_TUNE3		0x41
-#define PMW3366_REG_ANGLE_SNAP			0x42
-#define PMW3366_REG_LIFTCUTOFF_TUNE1		0x4A
-#define PMW3366_REG_MOTION_BURST		0x50
-#define PMW3366_REG_LIFTCUTOFF_TUNE_TIMEOUT	0x58
-#define PMW3366_REG_LIFTCUTOFF_TUNE_MIN_LENGTH	0x5A
-#define PMW3366_REG_SROM_LOAD_BURST		0x62
-#define PMW3366_REG_LIFT_CONFIG			0x63
-#define PMW3366_REG_RAW_DATA_BURST		0x64
-#define PMW3366_REG_LIFTCUTOFF_TUNE2		0x65
-
 /* Sensor identification values */
 #define PMW3366_PRODUCT_ID			0x40
 #define PMW3366_FIRMWARE_ID			0x09
@@ -669,28 +618,7 @@ static int pmw3366_async_init_fw_load_verify(const struct device *dev)
 	}
     LOG_INF("Rest modes disabled, sensor is fully active");
 	dummy_read(dev);
-
-	const struct pmw3366_config *config = dev->config;
-	
-	if (!device_is_ready(config->irq_gpio.port)) {
-		LOG_ERR("IRQ GPIO device not ready");
-		return -ENODEV;
-	}
-	
-	err = gpio_pin_configure_dt(&config->irq_gpio, GPIO_INPUT);
-	if (err) {
-		LOG_ERR("Cannot configure IRQ GPIO");
-		return err;
-	}
-	
-	gpio_init_callback(&data->irq_gpio_cb, irq_handler,
-			   BIT(config->irq_gpio.pin));
-	
-			   err = gpio_add_callback(config->irq_gpio.port, &data->irq_gpio_cb);
-	if (err) {
-		LOG_ERR("Cannot add IRQ GPIO callback");
-	}
-	LOG_DBG("Initialized IRQ");
+	pmw3366_init_irq(dev);
 	return err;
 }
 
@@ -891,7 +819,6 @@ static void pmw3366_async_init(struct k_work *work)
 		if (data->async_init_step == ASYNC_INIT_STEP_COUNT) {
 			data->ready = true;
 			LOG_INF("PMW3366 initialized");
-			set_interrupt(dev, true);
 		} else {
 			k_work_schedule(&data->init_work,
 					K_MSEC(async_init_delay[
@@ -1110,15 +1037,6 @@ static int pmw3366_attr_set(const struct device *dev, enum sensor_channel chan,
 	}
 
 	return err;
-}
-
-static void set_interrupt(const struct device *dev, const bool en) {
-    const struct pixart_config *config = dev->config;
-    int ret = gpio_pin_interrupt_configure_dt(&config->irq_gpio,
-                                              en ? GPIO_INT_LEVEL_ACTIVE : GPIO_INT_DISABLE);
-    if (ret < 0) {
-        LOG_ERR("can't set interrupt");
-    }
 }
 
 static const struct sensor_driver_api pmw3366_driver_api = {
